@@ -1,0 +1,34 @@
+# Render Blueprint - AI Agent Evaluation Pipeline
+# Deploy: Connect repo at https://dashboard.render.com → New → Blueprint
+
+services:
+  - type: web
+    name: try-new-api
+    runtime: python
+
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: try-new-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: try-new-redis
+          property: connectionString
+      - key: OPENAI_API_KEY
+        sync: false
+
+  - type: redis
+    name: try-new-redis
+    ipAllowList: []
+    plan: free
+
+databases:
+  - name: try-new-db
+    databaseName: eval_db
+    user: eval_user
+    plan: free

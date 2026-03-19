@@ -109,6 +109,16 @@ alembic upgrade head          # Apply all migrations
 alembic revision --autogenerate -m "add column x"  # Create new migration after model changes
 ```
 
+## Deploy to Render
+
+```bash
+# Push to GitHub, then:
+# Dashboard → New → Blueprint → Connect repo
+# Render uses render.yaml to create API + Postgres + Redis
+```
+
+See [docs/render-deploy.md](docs/render-deploy.md) for full instructions.
+
 ## Documentation
 
 | Doc | Description |
@@ -117,6 +127,7 @@ alembic revision --autogenerate -m "add column x"  # Create new migration after 
 | [docs/api.md](docs/api.md) | API reference |
 | [docs/setup.md](docs/setup.md) | Setup guide |
 | [docs/self-healing.md](docs/self-healing.md) | Calibration and human feedback |
+| [docs/render-deploy.md](docs/render-deploy.md) | Render deployment |
 
 ## Trade-offs
 
