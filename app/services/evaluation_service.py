@@ -31,7 +31,7 @@ class EvaluationService:
         heuristic_result = self.heuristic.evaluate(conversation)
 
         # Aggregate scores
-        response_quality = llm_scores.get("response_quality", 0.8)
+        response_quality = llm_scores.get("response_quality", 0.5)
         tool_accuracy = (
             tool_result.get("selection_accuracy", 1) * 0.4
             + tool_result.get("parameter_accuracy", 1) * 0.3
