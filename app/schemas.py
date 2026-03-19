@@ -38,6 +38,11 @@ class ConversationResponse(BaseModel):
     status: str = "queued"
 
 
+class BatchIngestResponse(BaseModel):
+    ingested: int
+    results: list[ConversationResponse]
+
+
 # --- Evaluation ---
 class IssueDetected(BaseModel):
     type: str

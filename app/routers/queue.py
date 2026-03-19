@@ -1,10 +1,10 @@
 """Queue processing - process pending conversations from Redis."""
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import Conversation, Evaluation
-from app.queue import dequeue_conversation, queue_length
+from app.queue import dequeue_conversation, dequeue_conversations, queue_length
 from app.services.evaluation_service import EvaluationService
 
 router = APIRouter(prefix="/queue", tags=["queue"])
@@ -17,20 +17,11 @@ def queue_status():
     return {"pending": queue_length()}
 
 
-@router.post("/process")
-def process_one(db: Session = Depends(get_db)):
-    """Process one conversation from the queue."""
-    payload = dequeue_conversation()
-    if not payload:
-        return {"status": "empty", "message": "No pending conversations"}
-
+def _process_payload(payload: dict, db: Session) -> dict | None:
+    """Process a single queue payload and store evaluation. Returns result or None."""
     data = payload.get("data", payload)
     conv_id = data.get("conversation_id")
-
-    # Run evaluation
     result = eval_service.evaluate(data)
-
-    # Store evaluation
     conv = db.query(Conversation).filter(
         Conversation.conversation_id == conv_id
     ).first()
@@ -45,6 +36,31 @@ def process_one(db: Session = Depends(get_db)):
         )
         db.add(eval_model)
         conv.processed = True
-        db.commit()
+    return {"evaluation_id": result["evaluation_id"], "conversation_id": conv_id}
 
-    return {"status": "processed", "evaluation_id": result["evaluation_id"]}
+
+@router.post("/process")
+def process_queue(
+    db: Session = Depends(get_db),
+    batch_size: int = Query(1, ge=1, le=100, description="Number of conversations to process"),
+):
+    """Process one or more conversations from the queue."""
+    if batch_size == 1:
+        payload = dequeue_conversation()
+        if not payload:
+            return {"status": "empty", "message": "No pending conversations"}
+        result = _process_payload(payload, db)
+        db.commit()
+        return {"status": "processed", "evaluation_id": result["evaluation_id"]}
+
+    payloads = dequeue_conversations(batch_size)
+    if not payloads:
+        return {"status": "empty", "message": "No pending conversations", "processed": 0}
+
+    results = []
+    for payload in payloads:
+        r = _process_payload(payload, db)
+        if r:
+            results.append(r)
+    db.commit()
+    return {"status": "processed", "processed": len(results), "evaluations": results}

@@ -79,6 +79,16 @@ docker-compose up -d
 - Swagger docs: http://localhost:8000/docs
 - Streamlit: http://localhost:8501
 
+## Testing
+
+```bash
+pip install -r requirements.txt
+pip install -e ".[test]"
+pytest tests/ -v
+```
+
+Tests use SQLite and FakeRedis — no PostgreSQL or Redis required. Covers API endpoints, evaluators, and queue logic (29 tests).
+
 ## API Endpoints
 
 | Method | Endpoint | Description |

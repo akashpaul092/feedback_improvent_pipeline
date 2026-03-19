@@ -3,3 +3,18 @@ name = "ai-agent-eval-pipeline"
 version = "1.0.0"
 description = "AI Agent Evaluation Pipeline"
 requires-python = ">=3.11,<3.14"
+dependencies = []
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    "httpx>=0.24",
+    "fakeredis>=2.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

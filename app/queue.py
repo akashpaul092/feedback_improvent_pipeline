@@ -34,6 +34,19 @@ def dequeue_conversation() -> Optional[dict]:
     return None
 
 
+def dequeue_conversations(count: int = 1) -> list[dict]:
+    """Pop up to `count` conversations from the queue. Returns list of payloads."""
+    r = get_redis()
+    payloads = []
+    for _ in range(count):
+        result = r.brpop(REDIS_QUEUE_KEY, timeout=1)
+        if not result:
+            break
+        _, payload = result
+        payloads.append(json.loads(payload))
+    return payloads
+
+
 def queue_length() -> int:
     """Get number of pending conversations in queue."""
     r = get_redis()
