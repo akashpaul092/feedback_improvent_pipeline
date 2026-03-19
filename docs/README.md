@@ -10,4 +10,3 @@ Documentation for the AI Agent Evaluation Pipeline.
 | [API Reference](api.md) | Endpoints, request/response formats |
 | [Setup Guide](setup.md) | Local development and Docker setup |
 | [Self-Healing](self-healing.md) | Calibration and human feedback integration |
-| [Render Deploy](render-deploy.md) | Deploy to Render |
